@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('SCM checkout') {
             steps {
-                git 'https://github.com/pv-commits/LocalRepo1'
+                git clone 'https://github.com/pv-commits/LocalRepo1'
             }
         }
         stage('Compile-Package') {
