@@ -1,6 +1,8 @@
 node {
     stage('SCM Checkout') {
-        git 'https://github.com/pv-commits/LocalRepo1'
+        steps {
+            git branch: 'main', url: 'https://github.com/pv-commits/LocalRepo1.git'
+        }
     }
     stage('Compile-Package') {
         // Get maven home path
