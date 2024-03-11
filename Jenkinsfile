@@ -11,7 +11,9 @@ pipeline {
       steps {
         // Get Maven home path
         def mvnHome = tool 'maven-3'
-        sh "${mvnHome}/bin/mvn package"
+        script {
+          sh "${mvnHome}/bin/mvn package"
+        }
       }
     }
   }
