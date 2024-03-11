@@ -1,20 +1,22 @@
 pipeline {
-  agent any
-  
-  stages {
-    stage('SCM checkout') {
-      steps {
-        git 'https://github.com/pv-commits/LocalRepo1'
-      }
+    agent any
+    
+    tools {
+        // Define the Maven tool
+        maven 'maven-3'
     }
-    stage('Compile-Package') {
-      steps {
-        // Get Maven home path
-        def mvnHome = tool 'maven-3', type 'maven'
-        script {
-          sh "${mvnHome}/bin/mvn package"
+    
+    stages {
+        stage('SCM checkout') {
+            steps {
+                git 'https://github.com/pv-commits/LocalRepo1'
+            }
         }
-      }
+        stage('Compile-Package') {
+            steps {
+                // Use the Maven tool
+                sh "mvn package"
+            }
+        }
     }
-  }
 }
