@@ -10,7 +10,7 @@ pipeline {
     stage('Compile-Package') {
       steps {
         // Get Maven home path
-        def mvnHome = tool 'maven-3'
+        def mvnHome = tool 'maven-3' type 'maven'
         script {
           sh "${mvnHome}/bin/mvn package"
         }
