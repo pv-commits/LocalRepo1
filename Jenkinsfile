@@ -12,6 +12,13 @@ node {
       Welcome to jenkins email alerts
       Thanks,
       Puru''', cc: '', from: '', replyTo: '', subject: 'Jenkins Jobs', to: 'pbaghe03@gmail.com'
-    }   
-        
+    }
+    stage('slack notification') {
+        slackSend baseUrl: 'https://hooks.slack.com/services/', 
+        channel: '#jenkins-pipeline-demo', 
+        color: 'good', 
+        message: 'Welcome to jenkins, slack!', 
+        tokenCredentialId: 'slack-demo', 
+        username: 'javahomecloud'
+    }
 }
