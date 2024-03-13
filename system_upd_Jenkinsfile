@@ -1,0 +1,112 @@
+def scm_scripting_url = "https://${GIT_BASE_URL}/pv-commits/LocalRepo1/branches?per_page=100"
+
+properties([
+    parameters([
+       [
+       $class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       description: 'patch Action      ',
+       filterLength: 1,
+       filterable: false,
+       name: 'action',
+       script: [$class: 'GroovyScript', fallbackScript: [classpath: [], sandbox: false, script: ''], script: [classpath: [], sandbox: true, script: 'actions = ["-- Select action --","PatchNORestart", "PatchAndRestart", "Restart"]']]
+     ],
+     [
+       $class: 'CascadeChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       description: 'OPTIONAL: Select Git Branch to fetch Ansible Scripts, default to Main',
+       filterLength: 1,
+       filterable: true,
+       name: 'gitBranch',
+       script:
+           [$class: 'ScriptlerScript',
+               parameter: [
+                   [$class: 'org.biouno.unochoice.model.ScriptlerScriptParameter', name: 'SCM_BRANCHES_URL', value: scm_scripting_url],
+                   [$class: 'org.biouno.unochoice.model.ScriptlerScriptParameter', name: 'REQUIRED_MAIN_BRANCH', value: "yes"]
+               ],
+               scriptlerScriptId: 'scm_getBranches.groovy'
+           ]
+       ],
+       text(
+            defaultValue: '',
+            description: 'Enter server IP adderesse(s) with comma separation [If left blank it will get from git repo host file];,
+            name: 'ips'
+       ),
+       choice(
+         choices: ["-- Select Confirm --", "YES", "NO"].join("\n"),
+         description: 'User Confirmation to proceed',
+         name: 'proceed'
+       )
+    ])  
+])  
+
+pipeline {
+  agent any
+  environment {
+    ANSIBLE_FORCE_COLOR = true
+        TOKEN = credentials('github_token')
+  }
+  options {
+    ansiColor('xterm')
+    timestamps()
+  }
+
+  stages {
+  stage("Pre-Req - System Update") {
+    steps {
+       script {
+           if ( params.action.equals("-- Select action --") ) {
+                 echo "####### Please Select action #######"
+                 currentBuild.result = 'ABORTED'
+                 error('####### Please Select action #######')
+           }
+           if (!params.proceed.equals("YES") ) {
+                 echo "####### Please Select Confirm - YES #######"
+                 currentBuild.result = 'ABORTED'
+                 error('####### Please Select Confirm - YES #######')
+           }
+        }  
+      }   
+    }
+    stage(Systen=m Update") {
+       option { timeout(time: 120, unit: 'MINUTES') }
+      steps {
+        script {
+           dir("ansible") {
+                deleteDir()
+                if(params.gitBranch.equals("") || "-- Select Branch --".equals(params.gitBranch)) {
+                   sh('git clone --depth 1 https://$TOKEN@${GIT_BASE_URL}/pv-commits/LocalRepo1.git -b main .')
+                } else {
+                   sh('git clone --depth 1 https://$TOKEN@${GIT_BASE_URL}/pv-commits/LocalRepo1.git -b $gitBranch .')
+                }
+
+                 if(!"".equals(params.ips)) {
+                     ipaddresses = params.ips.replaceAll("\\s","")
+                     if (!ipaddresses.matches("[a-zA-Z0-9,.-]*")) {
+                         currentBuild.result = 'ABORTED'
+                         error('#######Invalid IP adderess(s), Only allowed charactres letters, 0-9, comma and dot#######')
+                     }
+                     Println("###IP Adresse(s) [ ${ipaddresses} ]")
+                     String strIPs = "[host]\n"
+                     for (String ip : ips.split(",")) {
+                        strIPs += ip + "\n"
+                     }
+                     println "Creating host file [ ${WORKSPACE}/ansible/files/ci_hosts ] with ips"
+                     writeFiles(file: "${WORKSPACE}/ansible/files/ci_hosts", text: "${strIPs}", encoding: "UTF-8")
+                 }
+
+                sh("ls -la")
+                lock(env.JOB_NAME) {
+                   if ( params.action.equals("PatchNORestart"))
+                     sh('ansible-playbook -e "reboot=false" -i "${WORKSPACE}/ansible/files/ci_hosts" --forks=8 playbooks/systemUpdate_reboot.yml --skip-tags reboot')
+                   else if ( params.action.equals(PatchAndRestart"))
+                     sh('ansible-playbook -e "reboot=true" -i "${WORKSPACE}/ansible/files/ci_hosts" --forks=8 playbooks/systemUpdate_reboot.yml')
+                   else if ( params.action.equals("Restart"))
+                     sh('ansible-playbook -e "reboot=true" -i "${WORKSPACE}/ansible/files/ci_hosts" --forks=8 playbooks/systemUpdate_reboot.yml')
+              }
+           }
+        }
+      }
+    }
+  }
+}  
