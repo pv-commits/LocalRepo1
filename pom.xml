@@ -1,51 +1,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>my-app</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <artifactId>myweb</artifactId>
+    <version>0.0.1</version>
+    <packaging>war</packaging> <!-- Ensure this is set to 'war' -->
 
-    <name>My App</name>
-    <url>http://www.example.com</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
-    <dependencies>
-        <!-- JUnit dependency for testing -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <name>My Web Application</name>
 
     <build>
         <plugins>
-            <!-- Maven JAR Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
-                </configuration>
-            </plugin>
-
-            <!-- Maven WAR Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.1</version>
                 <configuration>
-                    <finalName>${project.artifactId}-0.0.1</finalName> <!-- Name of WAR file -->
+                    <finalName>myweb-0.0.1</finalName>
                 </configuration>
             </plugin>
         </plugins>
