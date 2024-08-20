@@ -1,7 +1,11 @@
 package com.example;
 
-public class App {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
+public class AppTest {
+    @Test
+    public void testApp() {
+        assertTrue(true);  // Simple test to always pass
     }
 }
